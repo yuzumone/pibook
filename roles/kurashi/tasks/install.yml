@@ -1,0 +1,15 @@
+---
+- name: Clone kurashi
+  become: yes
+  git:
+    repo: https://github.com/yuzumone/kurashi.git
+    dest: /opt/kurashi
+    version: main
+  notify: Install kurashi
+
+- name: Create link
+  become: yes
+  file:
+    src: /opt/kurashi/venv/bin/kurashi
+    dest: /usr/local/bin/kurashi
+    state: link

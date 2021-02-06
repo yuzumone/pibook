@@ -1,0 +1,29 @@
+---
+- name: Check dart exists
+  stat:
+    path: /opt/dart-sdk/bin/dart
+  register: dart_stat
+
+- name: Get version
+  command:
+    cmd: "/opt/dart-sdk/bin/dart --version"
+  register: dart_version
+  when: dart_stat.stat.exists
+  check_mode: no
+  changed_when: dart_version.rc != 0
+
+- name: Set now_version
+  set_fact:
+    now_dart_version: "{{ dart_version.stderr | regex_replace('^.*version:\\s([\\d\\.]+)\\s.+', '\\1') }}"
+  when: dart_stat.stat.exists
+
+- name: Download dart
+  become: yes
+  unarchive:
+    src: "https://storage.googleapis.com/dart-archive/channels/{{ dart.channel }}/release/{{ dart.version }}/sdk/dartsdk-linux-arm-release.zip"
+    dest: /opt
+    owner: nobody
+    group: nogroup
+    mode: 0755
+    remote_src: yes
+  when:  now_dart_version is not defined or dart.version is version(now_dart_version, '>')

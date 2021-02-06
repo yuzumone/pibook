@@ -1,0 +1,25 @@
+prometheus:
+  version: 2.24.1
+
+prometheus_opts:
+  "config.file": "/opt/prometheus/prometheus.yml"
+  "storage.tsdb.path": /var/prometheus/storage/tsdb
+  "storage.tsdb.retension.time": "{{ prometheus_tsdb_retention_time }}"
+
+prometheus_global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+  scrape_timeout: 30s
+
+prometheus_tsdb_retention_time: 30d
+
+prometheus_sd:
+  meter:
+    files:
+      - /opt/prometheus/meter.yml
+  node:
+    files:
+      - /opt/prometheus/node.yml
+
+prometheus_alertmanager_targets: []
+prometheus_rule_files: []

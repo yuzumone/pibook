@@ -1,0 +1,7 @@
+---
+- import_tasks: install.yml
+  tags:
+    - kurashi
+- import_tasks: cron.yml
+  tags:
+    - kurashi

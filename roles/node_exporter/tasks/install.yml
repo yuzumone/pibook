@@ -1,0 +1,49 @@
+---
+- name: Ensure node_exporter dir
+  become: yes
+  file:
+    path: /opt/node_exporter
+    mode: 0755
+    owner: nobody
+    group: nogroup
+    state: directory
+
+- name: Check node_exporter exists
+  stat:
+    path: /opt/node_exporter/node_exporter
+  register: node_exporter_stat
+
+- name: Get version
+  command:
+    cmd: "/opt/node_exporter/node_exporter --version"
+  register: node_exporter_version
+  when: node_exporter_stat.stat.exists
+  check_mode: no
+  changed_when: node_exporter_version.rc != 0
+
+- name: Set now_version
+  set_fact:
+    now_node_exporter_version: "{{ node_exporter_version.stderr_lines[0] | regex_replace('^.*version\\s([\\d\\.]+)\\s.+', '\\1') }}"
+  when: node_exporter_stat.stat.exists
+
+- name: Download node_exporter
+  become: yes
+  unarchive:
+    src: "\
+      https://github.com/prometheus/node_exporter/releases/download/\
+      v{{ node_exporter.version }}/node_exporter-{{ node_exporter.version }}.linux-armv7.tar.gz"
+    dest: /opt/node_exporter
+    owner: nobody
+    group: nogroup
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+  when: now_node_exporter_version is not defined or node_exporter.version is version(now_node_exporter_version, '>')
+  notify: Restart node_exporter
+
+- name: Copy node_exporter.service
+  become: yes
+  copy:
+    src: node_exporter.service
+    dest: /usr/lib/systemd/system/
+    mode: 0644
+  notify: Restart node_exporter

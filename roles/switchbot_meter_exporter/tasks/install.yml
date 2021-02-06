@@ -1,0 +1,41 @@
+---
+- name: Create log dir
+  become: yes
+  file:
+    path: /var/log/switchbot_meter_exporter
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create run dir
+  become: yes
+  file:
+    path: /var/run/switchbot_meter_exporter
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Clone exporter
+  become: yes
+  git:
+    repo: https://github.com/yuzumone/switchbot_meter_exporter.git
+    dest: /opt/switchbot_meter_exporter
+    version: main
+  notify: Install switchbot_meter_exporter
+
+- name: Copy switchbot_meter_exporter.service
+  become: yes
+  copy:
+    src: switchbot_meter_exporter.service
+    dest: /usr/lib/systemd/system/
+    mode: 0644
+  notify: Restart switchbot_meter_exporter
+
+- name: Copy loglotate
+  become: yes
+  copy:
+    src: switchbot_meter_exporter_logrotate.conf
+    dest: /etc/logrotate.d/
+    mode: 0644

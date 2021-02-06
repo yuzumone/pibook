@@ -1,0 +1,7 @@
+---
+- name: Install squid
+  become: yes
+  apt:
+    name: squid
+    state: present
+  notify: Restart squid

@@ -1,0 +1,22 @@
+---
+- name: Copy prometheus.yml
+  become: yes
+  template:
+    src: prometheus.yml.j2
+    dest: /opt/prometheus/prometheus.yml
+    force: yes
+    owner: nobody
+    group: nogroup
+    mode: 0644
+  notify: Reload prometheus
+
+- name: Copy default
+  become: yes
+  template:
+    src: default.j2
+    dest: /etc/default/prometheus
+    force: yes
+    owner: nobody
+    group: nogroup
+    mode: 0640
+  notify: Reload prometheus

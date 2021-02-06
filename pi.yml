@@ -1,0 +1,13 @@
+---
+- name: Deploy pi
+  hosts: all
+  gather_facts: no
+  roles:
+    - squid
+    - aria
+    - kurashi
+    - dart
+    - prometheus
+    - node_exporter
+    - switchbot_meter_exporter
+    - grafana

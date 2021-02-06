@@ -1,0 +1,8 @@
+---
+- name: Install kurashi
+  become: yes
+  pip:
+    name: .
+    chdir: /opt/kurashi
+    virtualenv: /opt/kurashi/venv
+    virtualenv_command: python -m venv

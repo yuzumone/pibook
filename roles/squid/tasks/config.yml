@@ -1,0 +1,11 @@
+---
+- name: Copy squid.conf
+  become: yes
+  copy:
+    src: squid.conf
+    dest: /etc/squid/squid.conf
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  notify: Restart squid

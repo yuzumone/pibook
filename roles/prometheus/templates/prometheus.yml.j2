@@ -1,0 +1,55 @@
+global:
+  {{ prometheus_global | to_nice_yaml(indent=2) | indent(2, False) }}
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+{% for t in prometheus_alertmanager_targets %}
+        - {{ t }}
+{% endfor %}
+
+rule_files:
+{% for f in prometheus_rule_files %}
+  - {{ t }}
+{% endfor %}
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+    - targets: ['localhost:9090']
+
+  - job_name: 'node'
+    file_sd_configs:
+    - files:
+{% for f in prometheus_sd.node.files %}
+      - {{ f }}
+{% endfor %}
+    relabel_configs:
+    - source_labels: [__address__]
+      separator: ;
+      regex: (.*)
+      target_label: __address__
+      replacement: $1:9100
+      action: replace
+
+  - job_name: 'meter'
+    scrape_interval: 30s
+    scrape_timeout: 30s
+    file_sd_configs:
+    - files:
+{% for f in prometheus_sd.meter.files %}
+      - {{ f }}
+{% endfor %}
+    relabel_configs:
+    - source_labels: [__address__]
+      separator: ;
+      regex: (.*)
+      target_label: __param_target
+      replacement: $1
+      action: replace
+    - separator: ;
+      regex: (.*)
+      target_label: __address__
+      replacement: 127.0.0.1:9234
+      action: replace

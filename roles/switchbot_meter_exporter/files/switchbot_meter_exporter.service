@@ -1,0 +1,17 @@
+[Unit]
+Description=switchbot meter exporter
+After=network.target
+
+[Service]
+Type=notify
+User=root
+Group=root
+WorkingDirectory=/opt/switchbot_meter_exporter
+ExecStart=/opt/switchbot_meter_exporter/venv/bin/gunicorn --config /opt/switchbot_meter_exporter/gunicorn.py --chdir /opt/switchbot_meter_exporter switchbot_meter_exporter.app:app
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,6 @@
+---
+- name: Install aria2
+  become: yes
+  apt:
+    name: aria2
+    state: present

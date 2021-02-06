@@ -1,0 +1,9 @@
+---
+- name: Install switchbot_meter_exporter
+  become: yes
+  pip:
+    name: .
+    chdir: /opt/switchbot_meter_exporter
+    virtualenv: /opt/switchbot_meter_exporter/venv
+    virtualenv_command: python -m venv
+  notify: Restart switchbot_meter_exporter

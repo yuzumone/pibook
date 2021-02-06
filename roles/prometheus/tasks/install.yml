@@ -1,0 +1,56 @@
+---
+- name: Ensure prometheus dir
+  become: yes
+  file:
+    path: /opt/prometheus
+    mode: 0755
+    owner: nobody
+    group: nogroup
+    state: directory
+
+- name: Ensure prometheus tsdb dir
+  become: yes
+  file:
+    path: /var/prometheus/storage/tsdb
+    mode: 0755
+    owner: nobody
+    group: nogroup
+    state: directory
+
+- name: Check prometheus exists
+  stat:
+    path: /opt/prometheus/prometheus
+  register: prometheus_stat
+
+- name: Get version
+  command:
+    cmd: "/opt/prometheus/prometheus --version"
+  register: prometheus_version
+  when: prometheus_stat.stat.exists
+  check_mode: no
+  changed_when: prometheus_version.rc != 0
+
+- name: Set now_version
+  set_fact:
+    now_prometheus_version: "{{ prometheus_version.stderr_lines[0] | regex_replace('^.*version\\s([\\d\\.]+)\\s.+', '\\1') }}"
+  when: prometheus_stat.stat.exists
+
+- name: Download prometheus
+  become: yes
+  unarchive:
+    src: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus.version }}/prometheus-{{ prometheus.version }}.linux-armv7.tar.gz"
+    dest: /opt/prometheus
+    owner: nobody
+    group: nogroup
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+  when: now_prometheus_version is not defined or prometheus.version is version(now_prometheus_version, '>')
+  notify: Restart prometheus
+
+- name: Copy prometheus.service
+  become: yes
+  copy:
+    src: prometheus.service
+    dest: /usr/lib/systemd/system/
+    mode: 0644
+  notify: Restart prometheus

@@ -1,0 +1,7 @@
+---
+- name: Restart switchbot_meter_exporter
+  become: yes
+  systemd:
+    daemon_reload: yes
+    name: switchbot_meter_exporter
+    state: restarted
