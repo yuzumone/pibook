@@ -2,18 +2,27 @@
 - name: Set tepco cron
   cron:
     name: kurashi tepco
-    day: 25
-    hour: 10
-    minute: 0
-    job: "/usr/bin/bash -l /usr/local/bin/kurashi tepco"
+    day: "25"
+    hour: "10"
+    minute: "0"
+    job: "export $(cat ~/.env | xargs); /usr/local/bin/kurashi tepco"
     state: present
 
 - name: Set water cron
   cron:
     name: kurashi water
-    day: 25
-    hour: 10
-    minute: 0
-    month: 1,3,5,7,9,11
-    job: "/usr/bin/bash -l /usr/local/bin/kurashi water"
+    day: "25"
+    hour: "10"
+    minute: "0"
+    month: "1,3,5,7,9,11"
+    job: "export $(cat ~/.env | xargs); /usr/local/bin/kurashi water"
+    state: present
+
+- name: Set aeonbank cron
+  cron:
+    name: kurashi aeonbank
+    day: "1"
+    hour: "10"
+    minute: "0"
+    job: "export $(cat ~/.env | xargs); /usr/local/bin/kurashi aeonbank"
     state: present
